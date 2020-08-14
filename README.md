@@ -1,1 +1,1 @@
-# minesweeper-typescript-react
+Building Minesweeper game with React, Typescript and Sass
