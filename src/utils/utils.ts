@@ -42,8 +42,8 @@ export const generateCells = (
                 continue;
             }
 
-            let numberOfBombs = 0;
-
+            // Here we check if current field has a adjacent field.
+            // Cell at 0,0 doesn't have top fields and left and bottomLeft
             const topLeftBomb =
                 rowIndex > 0 && columnIndex > 0
                     ? cells[rowIndex - 1][columnIndex - 1]
@@ -73,30 +73,29 @@ export const generateCells = (
                     ? cells[rowIndex + 1][columnIndex + 1]
                     : null;
 
-            if (topLeftBomb && topLeftBomb.value === CellValue.bomb) {
-                numberOfBombs++;
-            }
-            if (topBomb && topBomb.value === CellValue.bomb) {
-                numberOfBombs++;
-            }
-            if (topRightBomb && topRightBomb.value === CellValue.bomb) {
-                numberOfBombs++;
-            }
-            if (leftBomb && leftBomb.value === CellValue.bomb) {
-                numberOfBombs++;
-            }
-            if (rightBomb && rightBomb.value === CellValue.bomb) {
-                numberOfBombs++;
-            }
-            if (bottomLeftBomb && bottomLeftBomb.value === CellValue.bomb) {
-                numberOfBombs++;
-            }
-            if (bottomBomb && bottomBomb.value === CellValue.bomb) {
-                numberOfBombs++;
-            }
-            if (bottomRightBomb && bottomRightBomb.value === CellValue.bomb) {
-                numberOfBombs++;
-            }
+            // Instead of writing eight same if checks,
+            // I have placed them in array and loop through with map function
+            const adjacentFields = [
+                topLeftBomb,
+                topBomb,
+                topRightBomb,
+                leftBomb,
+                rightBomb,
+                bottomLeftBomb,
+                bottomBomb,
+                bottomRightBomb,
+            ];
+
+            let numberOfBombs = 0;
+
+            // We add bombTotal for each adjacent bomb field
+            adjacentFields.map((field) => {
+                if (field && field.value === CellValue.bomb) {
+                    return numberOfBombs++;
+                }
+            });
+
+            // Set the state.value to the number of adjacent bomb fields
             if (numberOfBombs > 0) {
                 cells[rowIndex][columnIndex] = {
                     ...currentCell,
