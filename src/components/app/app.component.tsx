@@ -7,21 +7,26 @@ import Button from '../button/button.component';
 const App: React.FC = () => {
     // Rows and columns for game
     const [row, setRow] = useState<number>(10);
-    const [column, setColumn] = useState<number>(10);
+    const [column, setColumn] = useState<number>(20);
+    const [bombs, setBombs] = useState<number>(10);
     const [rowNumber, setRowNumber] = useState<number>(10);
-    const [columnNumber, setColumnNumber] = useState<number>(10);
-    const [cells, setCells] = useState(generateCells(rowNumber, columnNumber));
+    const [columnNumber, setColumnNumber] = useState<number>(20);
+    const [numberOfBombs, setNumberOfBombs] = useState<number>(10);
+    const [cells, setCells] = useState(
+        generateCells(rowNumber, columnNumber, numberOfBombs)
+    );
 
     // User input form for rows and columns
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
         setRowNumber(row);
         setColumnNumber(column);
+        setNumberOfBombs(bombs);
     };
 
     useEffect(() => {
-        setCells(generateCells(rowNumber, columnNumber));
-    }, [rowNumber, columnNumber]);
+        setCells(generateCells(rowNumber, columnNumber, numberOfBombs));
+    }, [rowNumber, columnNumber, numberOfBombs]);
 
     // Inline style to control grid size
     const bodyGrid = {
@@ -33,7 +38,13 @@ const App: React.FC = () => {
     const renderCells = (): React.ReactNode => {
         return cells.map((rowNumber, rowIndex) =>
             rowNumber.map((cell, colIndex) => (
-                <Button key={rowIndex + '-' + colIndex} />
+                <Button
+                    key={rowIndex + '-' + colIndex}
+                    state={cell.state}
+                    value={cell.value}
+                    row={rowIndex}
+                    col={colIndex}
+                />
             ))
         );
     };
@@ -54,6 +65,13 @@ const App: React.FC = () => {
                     required
                     onChange={(e) => setColumn(parseInt(e.target.value))}
                     placeholder='Number of columns'
+                />
+                <input
+                    type='number'
+                    value={bombs}
+                    required
+                    onChange={(e) => setBombs(parseInt(e.target.value))}
+                    placeholder='Number of bombs'
                 />
                 <button type='submit'>Confirm</button>
             </form>
