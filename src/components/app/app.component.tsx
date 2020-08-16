@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './app.styles.scss';
 import NumberDisplay from '../number-display/number-display.component';
-import { generateCells } from '../../utils/utils';
-import { Face, Cell, CellState } from '../../utils/utils.types';
+import { generateCells, openAdjacentCells } from '../../utils/utils';
+import { Face, Cell, CellState, CellValue } from '../../utils/utils.types';
 import Button from '../button/button.component';
 
 const App: React.FC = () => {
@@ -78,6 +78,32 @@ const App: React.FC = () => {
     ) => (): void => {
         if (!start) {
             setStart(true);
+        }
+
+        const currentCell = cells[rowParam][columnParam];
+        let newCells = cells.slice();
+
+        if (
+            currentCell.state === CellState.flagged ||
+            currentCell.state === CellState.visible
+        ) {
+            return;
+        }
+        if (currentCell.value === CellValue.bomb) {
+            newCells[rowParam][columnParam].state = CellState.visible;
+            setCells(newCells);
+        } else if (currentCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam,
+                columnParam,
+                rowNumber,
+                columnNumber
+            );
+            setCells(newCells);
+        } else {
+            newCells[rowParam][columnParam].state = CellState.visible;
+            setCells(newCells);
         }
     };
 
