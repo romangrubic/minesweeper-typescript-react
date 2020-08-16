@@ -31,6 +31,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         setCells(generateCells(rowNumber, columnNumber, numberOfBombs));
+        setFlags(numberOfBombs);
     }, [rowNumber, columnNumber, numberOfBombs]);
 
     // Inline style to control grid size
