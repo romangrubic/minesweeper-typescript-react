@@ -149,3 +149,176 @@ export const generateCells = (
 
     return cells;
 };
+
+export const openAdjacentCells = (
+    cells: Cell[][],
+    rowParam: number,
+    columnParam: number,
+    rowNumber: number,
+    columnNumber: number
+): Cell[][] => {
+    const currentCell = cells[rowParam][columnParam];
+
+    if (
+        currentCell.state === CellState.visible ||
+        currentCell.state === CellState.flagged
+    ) {
+        return cells;
+    }
+
+    let newCells = cells.slice();
+    newCells[rowParam][columnParam].state = CellState.visible;
+
+    const {
+        topLeftCell,
+        topCell,
+        topRightCell,
+        leftCell,
+        rightCell,
+        bottomLeftCell,
+        bottomCell,
+        bottomRightCell,
+    } = grabAllAdjacentCells(
+        cells,
+        rowParam,
+        columnParam,
+        rowNumber,
+        columnNumber
+    );
+
+    //
+    if (
+        topLeftCell?.state === CellState.open &&
+        topLeftCell.value !== CellValue.bomb
+    ) {
+        if (topLeftCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam - 1,
+                columnParam - 1,
+                rowNumber,
+                columnNumber
+            );
+        } else {
+            newCells[rowParam - 1][columnParam - 1].state = CellState.visible;
+        }
+    }
+    //
+    if (topCell?.state === CellState.open && topCell.value !== CellValue.bomb) {
+        if (topCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam - 1,
+                columnParam,
+                rowNumber,
+                columnNumber
+            );
+        } else {
+            newCells[rowParam - 1][columnParam].state = CellState.visible;
+        }
+    }
+    //
+    if (
+        topRightCell?.state === CellState.open &&
+        topRightCell.value !== CellValue.bomb
+    ) {
+        if (topRightCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam - 1,
+                columnParam + 1,
+                rowNumber,
+                columnNumber
+            );
+        } else {
+            newCells[rowParam - 1][columnParam + 1].state = CellState.visible;
+        }
+    }
+    //
+    if (
+        leftCell?.state === CellState.open &&
+        leftCell.value !== CellValue.bomb
+    ) {
+        if (leftCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam,
+                columnParam - 1,
+                rowNumber,
+                columnNumber
+            );
+        } else {
+            newCells[rowParam][columnParam - 1].state = CellState.visible;
+        }
+    }
+    //
+    if (
+        rightCell?.state === CellState.open &&
+        rightCell.value !== CellValue.bomb
+    ) {
+        if (rightCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam,
+                columnParam + 1,
+                rowNumber,
+                columnNumber
+            );
+        } else {
+            newCells[rowParam][columnParam + 1].state = CellState.visible;
+        }
+    }
+    //
+    if (
+        bottomLeftCell?.state === CellState.open &&
+        bottomLeftCell.value !== CellValue.bomb
+    ) {
+        if (bottomLeftCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam + 1,
+                columnParam - 1,
+                rowNumber,
+                columnNumber
+            );
+        } else {
+            newCells[rowParam - 1][columnParam - 1].state = CellState.visible;
+        }
+    }
+    //
+    if (
+        bottomCell?.state === CellState.open &&
+        bottomCell.value !== CellValue.bomb
+    ) {
+        if (bottomCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam + 1,
+                columnParam,
+                rowNumber,
+                columnNumber
+            );
+        } else {
+            newCells[rowParam + 1][columnParam].state = CellState.visible;
+        }
+    }
+    //
+    if (
+        bottomRightCell?.state === CellState.open &&
+        bottomRightCell.value !== CellValue.bomb
+    ) {
+        if (bottomRightCell.value === CellValue.none) {
+            newCells = openAdjacentCells(
+                newCells,
+                rowParam + 1,
+                columnParam + 1,
+                rowNumber,
+                columnNumber
+            );
+        } else {
+            newCells[rowParam + 1][columnParam + 1].state = CellState.visible;
+        }
+    }
+
+    return newCells;
+};
