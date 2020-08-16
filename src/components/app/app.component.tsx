@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './app.styles.scss';
 import NumberDisplay from '../number-display/number-display.component';
 import { generateCells } from '../../utils/utils';
-import { Face, Cell } from '../../utils/utils.types';
+import { Face, Cell, CellState } from '../../utils/utils.types';
 import Button from '../button/button.component';
 
 const App: React.FC = () => {
@@ -17,6 +17,9 @@ const App: React.FC = () => {
         generateCells(rowNumber, columnNumber, numberOfBombs)
     );
     const [face, setFace] = useState<Face>(Face.smile);
+    const [time, setTime] = useState<number>(0);
+    const [start, setStart] = useState<boolean>(false);
+    const [flags, setFlags] = useState<number>(numberOfBombs);
 
     // User input form for rows and columns
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
@@ -54,6 +57,29 @@ const App: React.FC = () => {
         };
     }, []);
 
+    // Start timer
+    useEffect(() => {
+        if (start && time < 999) {
+            const timer = setInterval(() => {
+                setTime(time + 1);
+            }, 1000);
+
+            return () => {
+                clearInterval(timer);
+            };
+        }
+    }, [start, time]);
+
+    // Start game
+    const handleGameStart = (
+        rowParam: number,
+        columnParam: number
+    ) => (): void => {
+        if (!start) {
+            setStart(true);
+        }
+    };
+
     const renderCells = (): React.ReactNode => {
         return cells.map((rowNumber, rowIndex) =>
             rowNumber.map((cell, colIndex) => (
@@ -63,9 +89,20 @@ const App: React.FC = () => {
                     value={cell.value}
                     row={rowIndex}
                     col={colIndex}
+                    onClick={handleGameStart}
+                    onContext={handleCellContext}
                 />
             ))
         );
+    };
+
+    // BoardReset
+    const handleFaceClick = (): void => {
+        if (start) {
+            setStart(false);
+            setTime(0);
+            setCells(generateCells(rowNumber, columnNumber, numberOfBombs));
+        }
     };
 
     return (
@@ -96,13 +133,13 @@ const App: React.FC = () => {
             </form>
             <div className='App'>
                 <div className='Header'>
-                    <NumberDisplay value={0} />
-                    <div className='face'>
+                    <NumberDisplay value={flags} />
+                    <div className='face' onClick={handleFaceClick}>
                         <span role='img' aria-label='face'>
                             {face}
                         </span>
                     </div>
-                    <NumberDisplay value={23} />
+                    <NumberDisplay value={time} />
                 </div>
                 <div className='Body' style={bodyGrid}>
                     {renderCells()}
