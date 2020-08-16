@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './app.styles.scss';
 import NumberDisplay from '../number-display/number-display.component';
 import { generateCells } from '../../utils/utils';
+import { Face, Cell } from '../../utils/utils.types';
 import Button from '../button/button.component';
 
 const App: React.FC = () => {
@@ -12,9 +13,10 @@ const App: React.FC = () => {
     const [rowNumber, setRowNumber] = useState<number>(10);
     const [columnNumber, setColumnNumber] = useState<number>(20);
     const [numberOfBombs, setNumberOfBombs] = useState<number>(10);
-    const [cells, setCells] = useState(
+    const [cells, setCells] = useState<Cell[][]>(
         generateCells(rowNumber, columnNumber, numberOfBombs)
     );
+    const [face, setFace] = useState<Face>(Face.smile);
 
     // User input form for rows and columns
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
@@ -34,6 +36,23 @@ const App: React.FC = () => {
         gridTemplateRows: `repeat(${rowNumber}, 1fr)`,
         gridTemplateColumns: `repeat(${columnNumber}, 1fr)`,
     };
+
+    // When we click on the button face changes
+    useEffect(() => {
+        const handleMousedown = (): void => {
+            setFace(Face.surprise);
+        };
+        const handleMouseup = (): void => {
+            setFace(Face.smile);
+        };
+        window.addEventListener('mousedown', handleMousedown);
+        window.addEventListener('mouseup', handleMouseup);
+
+        return () => {
+            window.removeEventListener('mousedown', handleMousedown);
+            window.removeEventListener('mouseup', handleMouseup);
+        };
+    }, []);
 
     const renderCells = (): React.ReactNode => {
         return cells.map((rowNumber, rowIndex) =>
@@ -80,7 +99,7 @@ const App: React.FC = () => {
                     <NumberDisplay value={0} />
                     <div className='face'>
                         <span role='img' aria-label='face'>
-                            😁
+                            {face}
                         </span>
                     </div>
                     <NumberDisplay value={23} />
