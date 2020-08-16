@@ -80,6 +80,31 @@ const App: React.FC = () => {
         }
     };
 
+    // Right click to set flags
+    const handleCellContext = (rowParam: number, columnParam: number) => (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    ): void => {
+        e.preventDefault();
+
+        if (!start) {
+            return;
+        }
+        const currentCells = cells.slice();
+        const currentCell = cells[rowParam][columnParam];
+
+        if (currentCell.state === CellState.visible) {
+            return;
+        } else if (currentCell.state === CellState.open) {
+            currentCells[rowParam][columnParam].state = CellState.flagged;
+            setCells(currentCells);
+            setFlags(flags - 1);
+        } else if (currentCell.state === CellState.flagged) {
+            currentCells[rowParam][columnParam].state = CellState.open;
+            setCells(currentCells);
+            setFlags(flags + 1);
+        }
+    };
+
     const renderCells = (): React.ReactNode => {
         return cells.map((rowNumber, rowIndex) =>
             rowNumber.map((cell, colIndex) => (
