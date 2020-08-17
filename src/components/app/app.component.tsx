@@ -29,6 +29,7 @@ const App: React.FC = () => {
         setRowNumber(row);
         setColumnNumber(column);
         setNumberOfBombs(bombs);
+        handleFaceClick();
     };
 
     useEffect(() => {
@@ -93,6 +94,9 @@ const App: React.FC = () => {
         rowParam: number,
         columnParam: number
     ) => (): void => {
+        if (win || lose) {
+            return;
+        }
         if (!start) {
             setStart(true);
         }
@@ -206,6 +210,7 @@ const App: React.FC = () => {
         setCells(generateCells(rowNumber, columnNumber, numberOfBombs));
         setLose(false);
         setWin(false);
+        setFlags(numberOfBombs);
     };
 
     // Show all bombs
@@ -229,7 +234,7 @@ const App: React.FC = () => {
             <form onSubmit={handleSubmit} className='form'>
                 <h2>Set difficulty</h2>
                 <div>
-                    <label>Rows: </label>
+                    <label>Rows (max 15) </label>
                     <input
                         type='number'
                         value={row}
@@ -241,19 +246,19 @@ const App: React.FC = () => {
                     />
                 </div>
                 <div>
-                    <label>Columns: </label>
+                    <label>Columns (max 35) </label>
                     <input
                         type='number'
                         value={column}
                         max={35}
-                        min={5}
+                        min={10}
                         required
                         onChange={(e) => setColumn(parseInt(e.target.value))}
                         placeholder='Number of columns'
                     />
                 </div>
                 <div>
-                    <label>Bombs: </label>
+                    <label>Bombs (max of (rows * columns) - 1) </label>
                     <input
                         type='number'
                         value={bombs}
