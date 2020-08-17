@@ -4,15 +4,16 @@ import NumberDisplay from '../number-display/number-display.component';
 import { generateCells, openAdjacentCells } from '../../utils/utils';
 import { Face, Cell, CellState, CellValue } from '../../utils/utils.types';
 import Button from '../button/button.component';
+import { setFlagsFromString } from 'v8';
 
 const App: React.FC = () => {
     // Rows and columns for game
-    const [row, setRow] = useState<number>(10);
-    const [column, setColumn] = useState<number>(20);
+    const [row, setRow] = useState<number>(9);
+    const [column, setColumn] = useState<number>(9);
     const [bombs, setBombs] = useState<number>(10);
-    const [rowNumber, setRowNumber] = useState<number>(10);
-    const [columnNumber, setColumnNumber] = useState<number>(20);
-    const [numberOfBombs, setNumberOfBombs] = useState<number>(10);
+    const [rowNumber, setRowNumber] = useState<number>(row);
+    const [columnNumber, setColumnNumber] = useState<number>(column);
+    const [numberOfBombs, setNumberOfBombs] = useState<number>(bombs);
     const [cells, setCells] = useState<Cell[][]>(
         generateCells(rowNumber, columnNumber, numberOfBombs)
     );
@@ -20,6 +21,8 @@ const App: React.FC = () => {
     const [time, setTime] = useState<number>(0);
     const [start, setStart] = useState<boolean>(false);
     const [flags, setFlags] = useState<number>(numberOfBombs);
+    const [lose, setLose] = useState<boolean>(false);
+    const [win, setWin] = useState<boolean>(false);
 
     // User input form for rows and columns
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
@@ -71,6 +74,21 @@ const App: React.FC = () => {
         }
     }, [start, time]);
 
+    // Lost condition
+    useEffect(() => {
+        if (lose) {
+            setFace(Face.lose);
+            setStart(false);
+        }
+    }, [lose]);
+
+    // Win
+    useEffect(() => {
+        if (win) {
+            setStart(false);
+            setFace(Face.win);
+        }
+    }, [win]);
     // Start game
     const handleGameStart = (
         rowParam: number,
@@ -90,8 +108,11 @@ const App: React.FC = () => {
             return;
         }
         if (currentCell.value === CellValue.bomb) {
-            newCells[rowParam][columnParam].state = CellState.visible;
+            setLose(true);
+            newCells[rowParam][columnParam].red = true;
+            newCells = showAllBombs();
             setCells(newCells);
+            return;
         } else if (currentCell.value === CellValue.none) {
             newCells = openAdjacentCells(
                 newCells,
@@ -103,8 +124,38 @@ const App: React.FC = () => {
             setCells(newCells);
         } else {
             newCells[rowParam][columnParam].state = CellState.visible;
-            setCells(newCells);
         }
+        // Check to see if user won
+        let safeOpenCellsExists = false;
+        for (let row = 0; row < rowNumber; row++) {
+            for (let col = 0; col < columnNumber; col++) {
+                const currentCell = newCells[row][col];
+
+                if (
+                    currentCell.value !== CellValue.bomb &&
+                    currentCell.state === CellState.open
+                ) {
+                    safeOpenCellsExists = true;
+                    break;
+                }
+            }
+        }
+
+        if (!safeOpenCellsExists) {
+            newCells = newCells.map((row) =>
+                row.map((cell) => {
+                    if (cell.value === CellValue.bomb) {
+                        return {
+                            ...cell,
+                            state: CellState.flagged,
+                        };
+                    }
+                    return cell;
+                })
+            );
+            setWin(true);
+        }
+        setCells(newCells);
     };
 
     // Right click to set flags
@@ -141,6 +192,7 @@ const App: React.FC = () => {
                     value={cell.value}
                     row={rowIndex}
                     col={colIndex}
+                    red={cell.red}
                     onClick={handleGameStart}
                     onContext={handleCellContext}
                 />
@@ -150,16 +202,32 @@ const App: React.FC = () => {
 
     // BoardReset
     const handleFaceClick = (): void => {
-        if (start) {
-            setStart(false);
-            setTime(0);
-            setCells(generateCells(rowNumber, columnNumber, numberOfBombs));
-        }
+        setStart(false);
+        setTime(0);
+        setCells(generateCells(rowNumber, columnNumber, numberOfBombs));
+        setLose(false);
+        setWin(false);
+    };
+
+    // Show all bombs
+    const showAllBombs = (): Cell[][] => {
+        const currentCells = cells.slice();
+        return currentCells.map((row) =>
+            row.map((cell) => {
+                if (cell.value === CellValue.bomb) {
+                    return {
+                        ...cell,
+                        state: CellState.visible,
+                    };
+                }
+                return cell;
+            })
+        );
     };
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className='form'>
                 <input
                     type='number'
                     value={row}
