@@ -282,7 +282,7 @@ export const openAdjacentCells = (
                 columnNumber
             );
         } else {
-            newCells[rowParam - 1][columnParam - 1].state = CellState.visible;
+            newCells[rowParam + 1][columnParam - 1].state = CellState.visible;
         }
     }
     //
