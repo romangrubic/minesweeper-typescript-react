@@ -4,12 +4,11 @@ import NumberDisplay from '../number-display/number-display.component';
 import { generateCells, openAdjacentCells } from '../../utils/utils';
 import { Face, Cell, CellState, CellValue } from '../../utils/utils.types';
 import Button from '../button/button.component';
-import { setFlagsFromString } from 'v8';
 
 const App: React.FC = () => {
     // Rows and columns for game
-    const [row, setRow] = useState<number>(9);
-    const [column, setColumn] = useState<number>(9);
+    const [row, setRow] = useState<number>(10);
+    const [column, setColumn] = useState<number>(10);
     const [bombs, setBombs] = useState<number>(10);
     const [rowNumber, setRowNumber] = useState<number>(row);
     const [columnNumber, setColumnNumber] = useState<number>(column);
@@ -228,27 +227,43 @@ const App: React.FC = () => {
     return (
         <>
             <form onSubmit={handleSubmit} className='form'>
-                <input
-                    type='number'
-                    value={row}
-                    required
-                    onChange={(e) => setRow(parseInt(e.target.value))}
-                    placeholder='Number of rows'
-                />
-                <input
-                    type='number'
-                    value={column}
-                    required
-                    onChange={(e) => setColumn(parseInt(e.target.value))}
-                    placeholder='Number of columns'
-                />
-                <input
-                    type='number'
-                    value={bombs}
-                    required
-                    onChange={(e) => setBombs(parseInt(e.target.value))}
-                    placeholder='Number of bombs'
-                />
+                <h2>Set difficulty</h2>
+                <div>
+                    <label>Rows: </label>
+                    <input
+                        type='number'
+                        value={row}
+                        max={15}
+                        min={5}
+                        required
+                        onChange={(e) => setRow(parseInt(e.target.value))}
+                        placeholder='Number of rows'
+                    />
+                </div>
+                <div>
+                    <label>Columns: </label>
+                    <input
+                        type='number'
+                        value={column}
+                        max={35}
+                        min={5}
+                        required
+                        onChange={(e) => setColumn(parseInt(e.target.value))}
+                        placeholder='Number of columns'
+                    />
+                </div>
+                <div>
+                    <label>Bombs: </label>
+                    <input
+                        type='number'
+                        value={bombs}
+                        min={1}
+                        max={row * column - 1}
+                        required
+                        onChange={(e) => setBombs(parseInt(e.target.value))}
+                        placeholder='Number of bombs'
+                    />
+                </div>
                 <button type='submit'>Confirm</button>
             </form>
             <div className='App'>
